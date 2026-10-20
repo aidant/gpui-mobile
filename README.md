@@ -15,25 +15,36 @@ Implements the `gpui::Platform` trait for mobile targets, following the same arc
 
 **Highlights:** GPU-accelerated rendering, touch input with momentum scrolling, keyboard support, safe area insets, dark mode, and emoji rendering.
 
-## GPUI pre-release dependencies
+## Zed dependencies
 
-This fork publishes as `gpui-pre-mobile` and uses the crates.io GPUI snapshots
-from GPUI Kit. Version `0.1.0` targets `gpui-pre` and `gpui-pre-wgpu` **0.3.4**.
-Both are pinned together so the platform, renderer, and application share the
-same GPUI types. No Zed Git checkout or consumer Cargo patches are needed.
+This fork retains the package name `gpui-pre-mobile`, but uses GPUI from Zed
+commit `294169aeedbbe6aaa50fa3d00b5e865ed2aa9aa0`. The vendored
+renderer is retained for its offscreen extensions; its `gpui`, `collections`,
+and `gpui_util` dependencies use that same Zed revision. The renderer itself
+remains the customized snapshot in `vendor/gpui-pre-wgpu`, not Zed's current
+`gpui_wgpu` implementation.
 
 ```toml
 [dependencies]
-gpui = { package = "gpui-pre", version = "=0.3.4", default-features = false }
-gpui-mobile = { package = "gpui-pre-mobile", version = "0.1.0" }
+gpui = { git = "https://github.com/zed-industries/zed", rev = "294169aeedbbe6aaa50fa3d00b5e865ed2aa9aa0", default-features = false }
+gpui-mobile = { package = "gpui-pre-mobile", path = "../gpui-mobile" }
+
+# Consumer applications must put this patch in their root Cargo.toml.
+[patch.crates-io]
+async-task = { git = "https://github.com/zed-industries/async-task.git", rev = "015845a19fc31752c02367567d3b8900a406f9da" }
 ```
 
 The Rust library name remains `gpui_mobile`, including its native library
 filenames. Existing `use gpui_mobile::...` imports continue to work. Native app
 entry points and build steps are demonstrated in `example/`.
 
-This is an experimental platform release. Switching to `gpui-pre` does not
+This is an experimental platform release. Updating GPUI dependencies does not
 complete mobile IME composition, accessibility, or the mobile lifecycle hooks.
+
+The bundled `example/` still depends on GPUI Kit's published `gpui-pre` stack.
+It needs a separate toolkit/demo migration before it can build against this
+Git-based backend; do not mix its snapshot GPUI types with the types above.
+The example build commands below describe that legacy demo.
 
 Custom Android hosts should extend `dev.gpui.mobile.GpuiInputActivity` instead of
 `android.app.NativeActivity` to receive multistage IME composition through a
@@ -114,16 +125,11 @@ frame and the glyph and image tiles the offscreen windows uploaded are released.
 
 It needs `gpui-pre-wgpu`'s headless renderer, which upstream only builds for
 tests and benchmarks and which picks a Vulkan/GL device that iOS lacks. This
-repository vendors `gpui-pre-wgpu` 0.3.8 with that renderer behind an
+repository vendors `gpui-pre-wgpu` 0.3.9 with that renderer behind an
 `offscreen` feature, a constructor that takes the wgpu instance, and methods
 that release its render target and clear its sprite atlas
-(`vendor/gpui-pre-wgpu`). An application enabling `offscreen` must patch it the
-same way:
-
-```toml
-[patch.crates-io]
-gpui-pre-wgpu = { git = "https://github.com/longbridge/gpui-mobile" }
-```
+(`vendor/gpui-pre-wgpu`). This is a direct path dependency, so consumers do not
+need a renderer patch, including when enabling `offscreen`.
 
 ## Screenshots
 

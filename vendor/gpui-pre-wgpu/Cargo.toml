@@ -54,6 +54,14 @@ name = "layout_line"
 path = "benches/layout_line.rs"
 harness = false
 
+[[test]]
+name = "sprite_layout"
+path = "tests/sprite_layout.rs"
+
+[dev-dependencies.naga]
+version = "29.0"
+features = ["wgsl-in"]
+
 [dependencies.anyhow]
 version = "1.0.86"
 
@@ -61,8 +69,8 @@ version = "1.0.86"
 version = "1"
 
 [dependencies.collections]
-version = "=0.3.9"
-package = "gpui-pre-collections"
+git = "https://github.com/zed-industries/zed"
+rev = "294169aeedbbe6aaa50fa3d00b5e865ed2aa9aa0"
 
 [dependencies.cosmic-text]
 version = "0.19.0"
@@ -77,13 +85,13 @@ default-features = false
 package = "zed-font-kit"
 
 [dependencies.gpui]
-version = "=0.3.9"
+git = "https://github.com/zed-industries/zed"
+rev = "294169aeedbbe6aaa50fa3d00b5e865ed2aa9aa0"
 default-features = false
-package = "gpui-pre"
 
 [dependencies.gpui_util]
-version = "=0.3.9"
-package = "gpui-pre-util"
+git = "https://github.com/zed-industries/zed"
+rev = "294169aeedbbe6aaa50fa3d00b5e865ed2aa9aa0"
 
 [dependencies.image]
 version = "0.25.1"
